@@ -10,7 +10,6 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/greeting")
 public class GreetingController {
-
     @GetMapping
     public ResponseEntity<?> hello(){
         return ResponseEntity.ok( Collections.singletonMap("message", "Hello") );

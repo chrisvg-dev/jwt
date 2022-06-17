@@ -9,8 +9,11 @@ import org.springframework.stereotype.Component;
 
 //@Component
 public class CreateRoles implements CommandLineRunner {
-    @Autowired
-    RolService rolService;
+    private final RolService rolService;
+
+    public CreateRoles(RolService rolService) {
+        this.rolService = rolService;
+    }
 
     @Override
     public void run(String... args) throws Exception {

@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 
 public class UserSecurity implements UserDetails {
     private String nombre;
-    private String username;
+    private String lastName;
     private String email;
     private String pwd;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserSecurity(String nombre, String username, String email, String pwd, Collection<? extends GrantedAuthority> authorities) {
+    public UserSecurity(String nombre, String lastName, String email, String pwd, Collection<? extends GrantedAuthority> authorities) {
         this.nombre = nombre;
-        this.username = username;
+        this.lastName = lastName;
         this.email = email;
         this.pwd = pwd;
         this.authorities = authorities;
@@ -25,7 +25,7 @@ public class UserSecurity implements UserDetails {
 
     public static UserSecurity build(User usuario) {
         List<GrantedAuthority> authorities = usuario.getRoles().stream().map(rol -> new SimpleGrantedAuthority(rol.getRolName().name())).collect(Collectors.toList());
-        return new UserSecurity(usuario.getNombre(), usuario.getUsername(), usuario.getEmail(), usuario.getPwd(), authorities);
+        return new UserSecurity(usuario.getNombre(), usuario.getLastName(), usuario.getEmail(), usuario.getPwd(), authorities);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UserSecurity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 
     @Override

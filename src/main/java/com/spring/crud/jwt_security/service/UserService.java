@@ -18,12 +18,7 @@ public class UserService {
     }
     @Transactional(readOnly = true)
     public Optional<User> getByUsername(String username){
-        return usuarioRepository.findByUsername(username);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
-        return usuarioRepository.existsByUsername(username);
+        return usuarioRepository.findByEmail(username);
     }
 
     @Transactional(readOnly = true)

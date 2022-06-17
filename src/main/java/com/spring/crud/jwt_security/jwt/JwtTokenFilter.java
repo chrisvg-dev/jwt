@@ -22,17 +22,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
 
     @Autowired
-    JwtProvider jwtProvider;
+    private JwtProvider jwtProvider;
 
     @Autowired
-    UserDetailServiceImpl userDetailService;
+    private UserDetailServiceImpl userDetailService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = getToken(req);
-
-            if (token != null && jwtProvider.validateToken(token)) {
+            if (token != null && jwtProvider.tokenValidation(token)) {
                 String username = jwtProvider.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken auth =
@@ -48,9 +47,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private String getToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-
+        LOGGER.debug( header );
         if (header != null && header.startsWith("Bearer")) {
-            return header.replace("Bearer", "");
+            LOGGER.debug( header );
+            return header.replace("Bearer ", "");
         } else {
             return null;
         }

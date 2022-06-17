@@ -8,16 +8,16 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @NotNull
     private String nombre;
 
     @NotNull
-    @Column(unique = true)
-    private String username;
+    private String lastName;
 
     @NotNull
     @NotNull
@@ -36,16 +36,16 @@ public class User {
 
     public User(String nombre, String username, String email, String pwd) {
         this.nombre = nombre;
-        this.username = username;
+        this.lastName = username;
         this.email = email;
         this.pwd = pwd;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -57,12 +57,12 @@ public class User {
         this.nombre = nombre;
     }
 
-    public String getUsername() {
-        return username;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLastName(String username) {
+        this.lastName = username;
     }
 
     public String getEmail() {

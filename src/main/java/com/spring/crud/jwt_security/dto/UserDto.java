@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,12 +15,13 @@ import java.util.Set;
 @NoArgsConstructor
 public class UserDto {
     @NotBlank
-    private String nombre;
+    private String name;
     @NotBlank
-    private String username;
+    private String lastName;
     @Email
     private String email;
     @NotBlank
-    private String pwd;
+    @Size(min = 10,message = "debe tener al menos 10 caracteres")
+    private String password;
     private Set<String> roles = new HashSet<>();
 }

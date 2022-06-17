@@ -26,28 +26,21 @@ public class JwtProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtProvider.class);
     private static final String ROLES = "roles";
 
-    /**
-     * LA INFORMACION DE LAS VARIABLES SIGUIENTES SALE DEL PROPERTIES
-     */
     @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration}")
-    private int expiration;
+    private Integer expiration;
 
     public String generateToken(Authentication authentication){
         UserSecurity mainUser = (UserSecurity) authentication.getPrincipal();
-
-        /**
-         * MODIFICACION PARA SOLO ENVIAR EL TOKEN
-         */
         List<String> roles = mainUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         return Jwts.builder()
                 .setSubject(mainUser.getUsername())
                 .claim(ROLES, roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration))
+                .setExpiration(new Date(new Date().getTime() + (expiration*60000)))
                 .signWith(SignatureAlgorithm.HS512, secret.getBytes())
                 .compact();
     }
@@ -56,32 +49,28 @@ public class JwtProvider {
         return Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public boolean tokenValidation(String token) {
+        String message = "";
         try {
-            Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
-            return true;
+            Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
+            return !claims.isEmpty();
         } catch (MalformedJwtException e) {
-            logger.error("Token Mal formado");
+            message = "Token Mal formado";
         }  catch (UnsupportedJwtException e) {
-            String message = String.format("Token no soportado %s", e.getMessage());
+            message = String.format("Token no soportado %s", e.getMessage());
             logger.error(message);
         }  catch (ExpiredJwtException e) {
-            logger.error("Token expirado");
+            message = "Token expirado";
         }catch (IllegalArgumentException e) {
-            logger.error("Token vacio");
+            message = "Token vacio";
         } catch (SignatureException e) {
-            logger.error("Fail en la forma");
+            message = "Fail en la forma";
         }
-
+        logger.debug( message );
         return false;
     }
 
-    /**
-     * REFRESCAR TOKEN
-     * @param jwtDto
-     * @return
-     */
-    public String refreshToken(JwtDto jwtDto) throws ParseException {
+    public String tokenRefresh(JwtDto jwtDto) throws ParseException {
         JWT jwt = JWTParser.parse(jwtDto.getToken()); // SE PARSEA EL TOKEN
         JWTClaimsSet claims = jwt.getJWTClaimsSet();
         String username = claims.getSubject();
@@ -90,7 +79,7 @@ public class JwtProvider {
                 .setSubject(username)
                 .claim(ROLES, roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration))
+                .setExpiration(new Date(new Date().getTime() + (expiration*60000)))
                 .signWith(SignatureAlgorithm.HS512, secret.getBytes())
                 .compact();
     }

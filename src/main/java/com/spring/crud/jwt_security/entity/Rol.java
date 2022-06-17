@@ -6,35 +6,36 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "rol")
 public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private RolName rolName;
+    private RolName name;
 
     public Rol() {
     }
 
     public Rol(@NotNull  RolName rolName) {
-        this.rolName = rolName;
+        this.name = rolName;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     public RolName getRolName() {
-        return rolName;
+        return name;
     }
 
     public void setRolName(RolName rolName) {
-        this.rolName = rolName;
+        this.name = rolName;
     }
 }

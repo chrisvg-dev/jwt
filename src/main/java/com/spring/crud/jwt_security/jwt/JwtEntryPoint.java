@@ -11,19 +11,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-/**
- * VALIDA SI EXISTE UN TOKEN, EN CASO CONTRARIO RETORNA EL ERROR
- */
-
 @Component
 public class JwtEntryPoint implements AuthenticationEntryPoint {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtEntryPoint.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwtEntryPoint.class);
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        logger.error("Fail en el método commence : ");
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+        String message = String.format( "Fail en el método commence: %s", authException.getMessage() );
+        LOG.error( message );
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No tienes acceso a este sitio web.");
     }
 }

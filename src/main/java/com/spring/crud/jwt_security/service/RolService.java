@@ -10,16 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class RolService {
-
-    @Autowired
-    RolRepository rolRepository;
-
+    private final RolRepository rolRepository;
+    public RolService(RolRepository rolRepository) {
+        this.rolRepository = rolRepository;
+    }
+    @Transactional(readOnly = true)
     public Optional<Rol> findByRolName(RolName rol){
-        return rolRepository.findByRolName(rol);
+        return rolRepository.findByName(rol);
     }
 
+    @Transactional
     public void save(Rol rol) {
         rolRepository.save(rol);
     }

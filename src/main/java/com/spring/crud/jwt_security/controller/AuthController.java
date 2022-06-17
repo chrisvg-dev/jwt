@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,21 +47,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Message> nuevo(@Valid @RequestBody UserDto user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(new Message("Campos mal puestos"));
-        }
-        if (userService.existsByUsername(user.getUsername())) {
+    public ResponseEntity<?> nuevo(@Valid @RequestBody UserDto user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) return validate( bindingResult );
+
+        if (userService.existsByEmail(user.getLastName())) {
             return ResponseEntity.badRequest().body(new Message("Ese nombre ya existe"));
         }
         if (userService.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body(new Message("Ese email ya existe"));
         }
         User usuario = new User(
-            user.getNombre(), 
-            user.getUsername(), 
+            user.getName(),
+            user.getLastName(),
             user.getEmail(), 
-            passwordEncoder.encode(user.getPwd()));
+            passwordEncoder.encode(user.getPassword()));
         Set<Rol> roles = new HashSet<>();
 
         roles.add(rolService.findByRolName(RolName.ROLE_USER).get());
@@ -76,14 +74,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody Login loginUsuario, BindingResult bindingResult){
-        if(bindingResult.hasErrors())
-            return ResponseEntity.badRequest().body(new Message("Campos mal puestos"));
+        if(bindingResult.hasErrors()) return validate(bindingResult);
 
         Authentication authentication =
                 authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                        loginUsuario.getUsername(), loginUsuario.getPwd()));
-                        
+                        loginUsuario.getEmail(), loginUsuario.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -94,8 +90,16 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtDto> refresh(@RequestBody JwtDto jwtDto) throws ParseException {
-        String token = jwtProvider.refreshToken(jwtDto);
+        String token = jwtProvider.tokenRefresh(jwtDto);
         JwtDto jwt = new JwtDto(token);
         return ResponseEntity.ok(jwt);
+    }
+
+    private ResponseEntity<Map<String, String>> validate(BindingResult result) {
+        Map<String, String> errores = new HashMap<>();
+        result.getFieldErrors().forEach(err -> {
+            errores.put(err.getField(), "El campo " + err.getField() + " " + err.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest().body(errores);
     }
 }
